@@ -1,9 +1,12 @@
 # Python
 __pycache__/
 *.pyc
-
+output/
 # Output directory
 output/
+build/
+dist/
+
 
 # Temporary files
 temp_image_0.png
@@ -14,3 +17,7 @@ temp_image_0.png
 # Virtual environment
 venv/
 env/
+
+.png
+.jpg
+.jpeg

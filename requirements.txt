@@ -1,2 +1,6 @@
+# Recommended Python version: 3.9
 paddlepaddle
-paddleocropencv-python
+paddleocr
+opencv-python
+pyqt6
+pillow

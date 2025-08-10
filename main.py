@@ -5,7 +5,6 @@ from PyQt6.QtCore import Qt
 
 from src.ui.main_window import ImageUploadWindow
 
-
 def main():
     # Set Qt platform plugin explicitly for Linux
     os.environ.setdefault('QT_QPA_PLATFORM', 'xcb')
