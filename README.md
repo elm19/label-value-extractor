@@ -15,24 +15,22 @@ key-value-extractor/
 │   └── ui/
 │       ├── __init__.py
 │       └── main_window.py
-├── notebooks/
-│   └── ocr_exp1.ipynb
+├── notebooks/ocr_exp1.iocr_exp1.ipynbpynb
+│   └── ....
 ├── reports/
-│   └── phase1:ocr.pdf
-├── tests/
-│   ├── __init__.py
-│   ├── test_image_processing.py
-│   └── test_ui.py
+│   └── .....
+
 ├── .gitignore
 ├── requirements.txt
 └── README.md
+└── main.py
 ```
 
 ## Setup and Usage
 
 1.  **Clone the repository:**
     ```bash
-    git clone <repository-url>
+    git clone https://github.com/elm19/label-value-extractor
     ```
 
 2.  **Create a virtual environment and activate it:**
@@ -48,5 +46,5 @@ key-value-extractor/
 
 4.  **Run the application:**
     ```bash
-    python3 -m src.main
+    python3 main.py
     ```

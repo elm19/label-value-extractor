@@ -1,6 +1,7 @@
 # Recommended Python version: 3.9
 paddlepaddle
 paddleocr
-opencv-python
 pyqt6
 pillow
+python-bidi 
+arabic-reshaper
