@@ -27,7 +27,7 @@ class ImageUploadWindow(QMainWindow):
         super().__init__()
         self.current_image_path = None
         self.ocr_fr = PaddleOCR(
-            lang="fr",
+            lang="ar",
             use_doc_orientation_classify=False,
             use_doc_unwarping=False,
             use_textline_orientation=False
@@ -37,8 +37,8 @@ class ImageUploadWindow(QMainWindow):
     def setup_ui(self):
         # Set window properties
         self.setWindowTitle("OCR Label-Value Extraction Tool")
-        self.setGeometry(100, 100, 900, 700)
-        self.setMinimumSize(800, 600)
+        self.setGeometry(100, 100, 1200, 700)
+        self.setMinimumSize(1000, 600)
         
         # Create stacked widget
         self.stacked_widget = QStackedWidget()
@@ -77,9 +77,9 @@ class ImageUploadWindow(QMainWindow):
 
     def create_page2_results(self):
         """Create the UI for the second page (displaying results)"""
-        layout = QVBoxLayout(self.page2_results)
-        layout.setSpacing(20)
-        layout.setContentsMargins(30, 30, 30, 30)
+        main_layout = QVBoxLayout(self.page2_results)
+        main_layout.setSpacing(20)
+        main_layout.setContentsMargins(30, 30, 30, 30)
 
         # Title
         title_label = QLabel("Processing Results")
@@ -89,15 +89,63 @@ class ImageUploadWindow(QMainWindow):
         font.setBold(True)
         title_label.setFont(font)
         title_label.setStyleSheet("color: #2c3e50; margin-bottom: 20px;")
-        layout.addWidget(title_label)
+        main_layout.addWidget(title_label)
+
+        # Results container
+        results_container = QFrame()
+        results_container.setFrameStyle(QFrame.Shape.Box)
+        results_container.setStyleSheet("""
+            QFrame {
+                background-color: white;
+                border: 2px solid #dee2e6;
+                border-radius: 10px;
+                padding: 20px;
+            }
+        """)
+        main_layout.addWidget(results_container)
+
+        results_layout = QHBoxLayout(results_container)
+        results_layout.setSpacing(20)
 
         # Processed image display
         self.processed_image_label = QLabel()
         self.processed_image_label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        layout.addWidget(self.processed_image_label)
+        results_layout.addWidget(self.processed_image_label, 1)
 
         # Extracted text display
-        self.create_text_display(layout)
+        self.results_text_edit = QTextEdit()
+        self.results_text_edit.setFont(QFont("Arial", 12))
+        self.results_text_edit.setReadOnly(True)
+        self.results_text_edit.setStyleSheet("""
+            QTextEdit {
+                border: 1px solid #ced4da;
+                border-radius: 5px;
+                padding: 10px;
+            }
+        """)
+        results_layout.addWidget(self.results_text_edit, 1)
+
+        # Add button to go back to step 1 or upload new photo
+        self.back_to_upload_btn = QPushButton("Back to Upload / New Photo")
+        self.back_to_upload_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #6c757d;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                font-size: 14px;
+                font-weight: bold;
+                border-radius: 8px;
+            }
+            QPushButton:hover {
+                background-color: #5a6268;
+            }
+            QPushButton:pressed {
+                background-color: #495057;
+            }
+        """)
+        self.back_to_upload_btn.clicked.connect(self._on_back_to_step1_or_upload_new_photo_clicked)
+        main_layout.addWidget(self.back_to_upload_btn)
 
     def create_title(self, layout):
         """Create the title section"""
@@ -207,70 +255,6 @@ class ImageUploadWindow(QMainWindow):
         image_layout.addWidget(self.image_label)
         layout.addWidget(image_container)
 
-    def create_text_display(self, layout):
-        """Create the text display section"""
-        # Text container
-        text_container = QFrame()
-        text_container.setFrameStyle(QFrame.Shape.Box)
-        text_container.setStyleSheet("""
-            QFrame {
-                background-color: white;
-                border: 2px solid #dee2e6;
-                border-radius: 10px;
-                padding: 20px;
-            }
-        """)
-        
-        text_layout = QVBoxLayout(text_container)
-        
-        # Text label
-        self.text_label = QLabel("Extracted Text:")
-        font = QFont()
-        font.setPointSize(16)
-        font.setBold(True)
-        self.text_label.setFont(font)
-        self.text_label.setStyleSheet("color: #2c3e50; margin-bottom: 10px;")
-        text_layout.addWidget(self.text_label)
-        
-        # Text edit
-        self.text_edit = QTextEdit()
-        self.text_edit.setReadOnly(True)
-        self.text_edit.setStyleSheet("""
-            QTextEdit {
-                border: 1px solid #ced4da;
-                border-radius: 5px;
-                padding: 10px;
-                font-size: 14px;
-            }
-        """)
-        text_layout.addWidget(self.text_edit)
-        
-        # See more button
-        self.see_more_btn = QPushButton("See More")
-        self.see_more_btn.setStyleSheet("""
-            QPushButton {
-                background-color: #6c757d;
-                color: white;
-                border: none;
-                padding: 10px 20px;
-                font-size: 14px;
-                border-radius: 5px;
-            }
-            QPushButton:hover {
-                background-color: #5a6268;
-            }
-        """)
-        self.see_more_btn.clicked.connect(self.show_full_text)
-        self.see_more_btn.hide() # Initially hidden
-        text_layout.addWidget(self.see_more_btn)
-        
-        layout.addWidget(text_container)
-
-    def show_full_text(self):
-        """Show the full extracted text"""
-        self.text_edit.setMaximumHeight(16777215) # Remove max height
-        self.see_more_btn.hide()
-
     def create_status_label(self, layout):
         """Create status label"""
         self.status_label = QLabel("Ready to process images")
@@ -352,32 +336,21 @@ class ImageUploadWindow(QMainWindow):
             ))
 
             # Display the extracted text
-            self.update_text_display(extracted_text)
+            self.results_text_edit.setText(extracted_text)
+            # print(f"Extracted Text: {extracted_text}")
 
             # Switch to the results page
             self.stacked_widget.setCurrentWidget(self.page2_results)
         else:
             self.show_error("Error", "Failed to process the image.")
 
-    def update_text_display(self, text):
-        """Update the text display with the extracted text"""
-        self.extracted_text = text
-        # Show a snippet of the text
-        snippet = "\n".join(text.splitlines()[:5])
-        self.text_edit.setText(snippet)
-        
-        # Show the 'See More' button if the text is long
-        if len(text.splitlines()) > 5:
-            self.text_edit.setMaximumHeight(100)
-            self.see_more_btn.show()
-        else:
-            self.see_more_btn.hide()
-
     def show_error(self, title, message):
         """Show error message box"""
         QMessageBox.critical(self, title, message)
         self.status_label.setText("Error loading image")
-        self.status_label.setStyleSheet("""
+        self.status_label.setStyleSheet(
+            """"
+           
             QLabel {
                 color: #721c24;
                 font-size: 14px;
@@ -387,5 +360,30 @@ class ImageUploadWindow(QMainWindow):
                 border: 1px solid #f5c6cb;
                 border-radius: 5px;
             }
-        """)
+             """
+        )
 
+    def _on_back_to_step1_or_upload_new_photo_clicked(self):
+        """
+        Handles the click event for the "Back to Upload / New Photo" button.
+        Switches the view back to the image upload page (page1).
+        """
+        self.stacked_widget.setCurrentWidget(self.page1_upload)
+        self.status_label.setText("Ready to process images")
+        self.status_label.setStyleSheet(
+            """
+            QLabel {
+                color: #28a745;
+                font-size: 14px;
+                font-weight: bold;
+                padding: 10px;
+                background-color: #d4edda;
+                border: 1px solid #c3e6cb;
+                border-radius: 5px;
+            }
+            """
+        )
+        self.image_label.setText("No image selected\n\nClick 'Upload Image' to select an image file")
+        self.image_label.setPixmap(QPixmap())
+        self.results_text_edit.clear()
+        self.processed_image_label.clear()
