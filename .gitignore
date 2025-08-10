@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.pyc
+
+# Output directory
+output/
+
+# Temporary files
+temp_image_0.png
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Virtual environment
+venv/
+env/
